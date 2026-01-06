@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Client List</h2>
+    <table class="table table-bordered table-striped">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Client Name</th>
+                <th>Renew Cost</th>
+                <th>Renew Type</th>
+                <th>Recharge Type</th>
+                <th>Mobile</th>
+                <th>Email</th>
+                <th>Date</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for client in clients %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ client.fullname }}</td>
+                <td>{{ client.renew_cost }}</td>
+                <td>{{ client.renew_type }}</td>
+                <td>{{ client.recharge_type }}</td>
+                <td>{{ client.username }}</td>
+                <td>{{ client.email }}</td>
+                <td>{{ client.date }}</td>
+                <td>{{ client.time }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" class="text-center">No clients found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

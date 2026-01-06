@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    <div class="container">
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <label for="client_name" class="form-label">Client Name:</label>
+                <input type="text" class="form-control" id="client_name" name="client_name" placeholder="Enter client name.">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="renew_cost" class="form-label">Renew Cost/Type:</label>
+                <input type="text" class="form-control" id="renew_cost" name="renew_cost" placeholder="50">
+            </div>
+            <div class="col-md-6">
+                <label for="renew_type" class="form-label" style="visibility:hidden">Renew Type:</label>
+                <select class="form-select" id="renew_type" name="renew_type">
+                    <option value="Annually">Annually</option>
+                    <option value="Monthly">Monthly</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="recharge_type" class="form-label">Recharge/Mobile/Email:</label>
+                <select class="form-select" id="recharge_type" name="recharge_type">
+                    <option value="Unmanaged">Unmanaged</option>
+                    <option value="Managed">Managed</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="mobile" class="form-label" style="visibility:hidden">Mobile:</label>
+                <input type="text" class="form-control" id="mobile" name="mobile" placeholder="Enter mobile.">
+            </div>
+            <div class="col-md-4">
+                <label for="email" class="form-label" style="visibility:hidden">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email.">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-end">
+                <button type="submit" class="btn btn-primary">Add Client</button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

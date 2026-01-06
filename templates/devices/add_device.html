@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form method="post">
+	{% csrf_token %}
+	<div class="container">
+		<div class="row mb-3">
+			<div class="col-md-6">
+				<label for="imei" class="form-label">IMEI/SIM No:</label>
+				<input type="text" class="form-control" id="imei" name="imei" placeholder="Enter IMEI No.">
+			</div>
+			<div class="col-md-6">
+				<label for="sim" class="form-label" style="visibility:hidden">SIM No:</label>
+				<input type="text" class="form-control" id="number" name="number" placeholder="Enter SIM No.">
+			</div>
+		</div>
+		<div class="row mb-3">
+			<div class="col-md-6">
+				<label for="sim_operator" class="form-label">SIM Operator/Type:</label>
+				<select class="form-select" id="sim" name="sim">
+					<option value="Nepal Telecom">Nepal Telecom</option>
+					<option value="Ncell">Ncell</option>
+				</select>
+			</div>
+			<div class="col-md-6">
+				<label for="device_type" class="form-label" style="visibility:hidden">Device Type:</label>
+				<select class="form-select" id="type" name="type">
+					<option value="Concox (GT06)">Concox (GT06)</option>
+					<option value="Other">Other</option>
+				</select>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12 text-end">
+				<button type="submit" class="btn btn-primary">Add Device</button>
+			</div>
+		</div>
+	</div>
+</form>
+
+{% endblock %}

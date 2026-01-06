@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h4 class="mb-3">Add Vehicle</h4>
+    <form method="post">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="imei" class="form-label">IMEI/Reg No/Nick Name:</label>
+                <input type="text" class="form-control" id="imei" name="imei" placeholder="Enter Device IMEI.">
+            </div>
+            <div class="col-md-4">
+                <label for="reg_no" class="form-label" style="visibility:hidden">Registration:</label>
+                <input type="text" class="form-control" id="reg_no" name="reg_no" placeholder="Enter Regestration">
+            </div>
+            <div class="col-md-4">
+                <label for="name" class="form-label" style="visibility:hidden">Name:</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Enter Name.">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="odometer" class="form-label">Odometer/Milage/Min Fuel:</label>
+                <input type="text" class="form-control" id="odometer" name="odometer" placeholder="Enter Current Odometer.">
+            </div>
+            <div class="col-md-4">
+                <label for="milage" class="form-label" style="visibility:hidden">Milage:</label>
+                <input type="text" class="form-control" id="milage" name="milage" placeholder="Enter Milage.">
+            </div>
+            <div class="col-md-4">
+                <label for="min_fuel" class="form-label" style="visibility:hidden">Low Fuel Value:</label>
+                <input type="text" class="form-control" id="low_fuel" name="low_fuel" placeholder="Enter Low Fuel Value">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="overspeed" class="form-label">Overspeed/Vehicle Type:</label>
+                <select class="form-select is-invalid" id="overspeed" name="overspeed">
+                    <option value="20 km/hr">20 km/hr</option>
+                    <option value="30 km/hr">30 km/hr</option>
+                    <option value="40 km/hr">40 km/hr</option>
+                    <option value="50 km/hr">50 km/hr</option>
+                    <option value="60 km/hr">60 km/hr</option>
+                    <option value="65 km/hr">65 km/hr</option>
+                    <option value="70 km/hr">70 km/hr</option>
+                    <option value="75 km/hr">75 km/hr</option>
+                    <option value="80 km/hr">80 km/hr</option>
+                    <option value="90 km/hr">90 km/hr</option>
+                    <option value="100 km/hr">100 km/hr</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="type" class="form-label" style="visibility:hidden">Vehicle Type:</label>
+                <select class="form-select is-invalid" id="type" name="type">
+                    <option value="BIKE">BIKE</option>
+                    <option value="SCHOOL_BUS">SCHOOL_BUS</option>
+                    <option value="BUS">BUS</option>
+                    <option value="TRUCK">TRUCK</option>
+                    <option value="JEEP">JEEP</option>
+                    <option value="PICKUP">PICKUP</option>
+                    <option value="CAR">CAR</option>
+                    <option value="AMBULANCE">AMBULANCE</option>
+                    <option value="TANKER">TANKER</option>
+                    <option value="TIPPER">TIPPER</option>
+                    <option value="TRAIN">TRAIN</option>
+                    <option value="TRACTOR">TRACTOR</option>
+                    <option value="CRANE">CRANE</option>
+                    <option value="DUMPER">DUMPER</option>
+                    <option value="GARBAGE">GARBAGE</option>
+                    <option value="MIXER">MIXER</option>
+                    <option value="PICKUP">PICKUP</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="public" class="form-label">Publish Vehicle/Public Privacy:</label>
+                <select class="form-select" id="public" name="public">
+                    <option value="NO">NO</option>
+                    <option value="YES">YES</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="public_privacy" class="form-label" style="visibility:hidden">Public Privacy:</label>
+                <select class="form-select" id="public_privacy" name="public_privacy">
+                    <option value="EVERY STATUS">EVERY STATUS</option>
+                    <option value="PRIVATE">PRIVATE</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-primary">Add Vehicle</button>
+                <button type="reset" class="btn btn-warning ms-2">Reset Form</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

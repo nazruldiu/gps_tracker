@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Vehicle List</h2>
+    <table class="table table-bordered table-striped">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>IMEI</th>
+                <th>Reg No</th>
+                <th>Name</th>
+                <th>Odometer</th>
+                <th>Milage</th>
+                <th>Low Fuel</th>
+                <th>Overspeed</th>
+                <th>Type</th>
+                <th>Client</th>
+                <th>Public Privacy</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vehicle in vehicles %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td class="imei-cell">{{ vehicle.imei }}</td>
+                <td>{{ vehicle.reg_no }}</td>
+                <td>{{ vehicle.name }}</td>
+                <td>{{ vehicle.odometer }}</td>
+                <td>{{ vehicle.milage }}</td>
+                <td>{{ vehicle.low_fuel|yesno:"Yes,No" }}</td>
+                <td>{{ vehicle.overspeed|yesno:"Yes,No" }}</td>
+                <td>{{ vehicle.type }}</td>
+                <td>{% if vehicle.client_id %}{{ vehicle.client_id.fullname }}{% else %}NOT ASSIGNED{% endif %}</td>
+                <td>{{ vehicle.public_privacy }}</td>
+                <td>{{ vehicle.date }}</td>
+                <td>{{ vehicle.time }}</td>
+                <td>
+                    <a class="btn btn-sm btn-primary" href="{% url 'vehicles_track' vehicle.veh_id %}">Track</a>
+                    <a class="btn btn-sm btn-primary" href="{% url 'current_view' vehicle.veh_id %}">Current location</a>
+                    {% comment %} <button class="btn btn-sm btn-secondary assign-device-btn" data-veh-id="{{ vehicle.veh_id }}" data-imei="{{ vehicle.imei }}">Assign Device</button> {% endcomment %}
+
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="13" class="text-center">No vehicles found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<div class="modal fade" id="assignDeviceModal" tabindex="-1" aria-labelledby="assignDeviceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignDeviceModalLabel">Assign Device to Vehicle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assignDeviceForm">
+                    <input type="hidden" id="modalVehId">
+                    <div class="mb-3">
+                        <label for="modalImei" class="form-label">IMEI</label>
+                        <input type="text" class="form-control" id="modalImei">
+                    </div>
+                    <div class="mb-3">
+                        <label for="modalNumber" class="form-label">Number</label>
+                        <input type="text" class="form-control" id="modalNumber">
+                    </div>
+                    <div class="mb-3">
+                        <label for="modalSim" class="form-label">SIM</label>
+                        <input type="text" class="form-control" id="modalSim">
+                    </div>
+                    <div class="mb-3">
+                        <label for="modalType" class="form-label">Type</label>
+                        <input type="text" class="form-control" id="modalType" value="gt06">
+                    </div>
+                </form>
+                <div id="assignDeviceAlert" style="display:none" class="alert" role="alert"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="assignDeviceSubmit" class="btn btn-primary">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const modalEl = document.getElementById('assignDeviceModal');
+    const modal = new bootstrap.Modal(modalEl);
+    document.querySelectorAll('.assign-device-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const vehId = btn.getAttribute('data-veh-id');
+            const imei = btn.getAttribute('data-imei') || '';
+            document.getElementById('modalVehId').value = vehId;
+            document.getElementById('modalImei').value = imei;
+            document.getElementById('modalNumber').value = '';
+            document.getElementById('modalSim').value = '';
+            document.getElementById('modalType').value = 'gt06';
+            document.getElementById('assignDeviceAlert').style.display = 'none';
+            modal.show();
+        });
+    });
+
+    document.getElementById('assignDeviceSubmit').addEventListener('click', async () => {
+        const vehId = document.getElementById('modalVehId').value;
+        const imei = document.getElementById('modalImei').value.trim();
+        const number = document.getElementById('modalNumber').value.trim();
+        const sim = document.getElementById('modalSim').value.trim();
+        const type = document.getElementById('modalType').value.trim();
+        const alertEl = document.getElementById('assignDeviceAlert');
+        if (!imei) {
+            alertEl.className = 'alert alert-danger';
+            alertEl.innerText = 'IMEI is required';
+            alertEl.style.display = 'block';
+            return;
+        }
+
+        try {
+            const form = new URLSearchParams();
+            form.append('imei', imei);
+            form.append('veh_id', vehId);
+            if (number) form.append('number', number);
+            if (sim) form.append('sim', sim);
+            if (type) form.append('type', type);
+
+            const resp = await fetch('{% url "assign_device" %}', { method: 'POST', body: form });
+            const data = await resp.json();
+            if (resp.ok && data.ok) {
+                alertEl.className = 'alert alert-success';
+                alertEl.innerText = 'Device assigned successfully';
+                alertEl.style.display = 'block';
+                // update IMEI cell in the table row
+                const row = document.querySelector('[data-veh-id="' + vehId + '"]');
+                if (row) {
+                    const imeiCell = row.querySelector('.imei-cell');
+                    if (imeiCell) imeiCell.innerText = imei;
+                }
+                setTimeout(()=>{ modal.hide(); }, 800);
+            } else {
+                alertEl.className = 'alert alert-danger';
+                alertEl.innerText = data.error || 'Assign failed';
+                alertEl.style.display = 'block';
+            }
+        } catch (e) {
+            alertEl.className = 'alert alert-danger';
+            alertEl.innerText = 'Request failed';
+            alertEl.style.display = 'block';
+        }
+    });
+});
+</script>
+
+{% endblock %}

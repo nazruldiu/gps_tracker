@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  #map {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+</head>
+<body>
+
+<div class="container-fluid mt-3">
+  <div class="row">
+    <div class="col-md-2 sidebar">
+      <h5>Vehicles</h5>
+      <ul class="list-group">
+        {% for v in vehicles %}
+        <li class="list-group-item" data-imei="{{ v.imei }}">
+          <strong>{{ v.name }}</strong><br>
+          {{ v.reg_no }}<br>
+          <small>Speed: <span class="speed">{{ v.speed }}</span> km/h</small>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="col-md-10" style="height:700px;">
+      <div id="map"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Google Maps -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCnFTf69-EyGk52QjL54AZTuf36fHtmILY"></script>
+<script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+
+<script>
+/* ===============================
+   MAP
+================================ */
+let map;
+const liveMarkers = {};
+
+/* ===============================
+   UTILITY FUNCTIONS
+================================ */
+function formatTime(timeString) {
+  if (!timeString) return '';
+  
+  try {
+    // Handle ISO format with timezone
+    const date = new Date(timeString);
+    if (isNaN(date.getTime())) {
+      // Fallback for different formats
+      const cleaned = timeString.replace('T', ' ').split('+')[0];
+      return cleaned;
+    }
+    return date.toLocaleString();
+  } catch (e) {
+    return timeString;
+  }
+}
+
+function toNum(v) {
+  if (v == null) return null;
+  const n = parseFloat(String(v).replace(/[^\d.-]/g,''));
+  return Number.isFinite(n) ? n : null;
+}
+
+function initMap() {
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: 23.8103, lng: 90.4125 },
+    zoom: 14
+  });
+
+  drawHistory();
+}
+window.onload = initMap;
+
+/* ===============================
+   HISTORY FROM DJANGO VIEW
+================================ */
+function drawHistory() {
+  const history = JSON.parse('{{ history_json|default:"[]"|escapejs }}');
+
+  if (!history.length) return;
+
+  const path = history.map(p => ({
+    lat: parseFloat(p.lat),
+    lng: parseFloat(p.lon)
+  }));
+
+  const polyline = new google.maps.Polyline({
+    path: path,
+    strokeColor: "#0d6efd",
+    strokeOpacity: 0.9,
+    strokeWeight: 4,
+    map: map
+  });
+
+  // Last point marker
+  const last = history[history.length - 1];
+  const lastPos = { lat: parseFloat(last.lat), lng: parseFloat(last.lon) };
+
+  const marker = new google.maps.Marker({
+    position: lastPos,
+    map: map,
+    icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+  });
+
+  // FIXED: Use formatted time
+  const info = new google.maps.InfoWindow({
+    content: `
+      <div style="font-size:13px">
+        <b>IMEI:</b> ${last.imei || ''}<br>
+        <b>Speed:</b> ${last.speed || 0} km/h<br>
+        <b>Time:</b> ${formatTime(last.time)}<br>
+        <a href="https://maps.google.com/?q=${last.lat},${last.lon}" target="_blank">
+          Open in Google Maps
+        </a>
+      </div>
+    `
+  });
+
+  info.open(map, marker);
+
+  // Fit bounds
+  const bounds = new google.maps.LatLngBounds();
+  path.forEach(p => bounds.extend(p));
+  map.fitBounds(bounds);
+
+  google.maps.event.addListenerOnce(map, 'bounds_changed', function () {
+    if (map.getZoom() > 14) {
+      map.setZoom(14);
+    }
+  });
+}
+
+/* ===============================
+   SOCKET.IO (LIVE)
+================================ */
+const SOCKETIO_BRIDGE = "https://pyschosocial.zapto.org";
+
+const socket = io(SOCKETIO_BRIDGE, {
+  transports: ["polling","websocket"],
+  path: "/socket.io/"
+});
+
+socket.on("cast", (cast) => {
+  if (cast.type !== "location") return;
+
+  const d = cast.data;
+  let lat = toNum(d.lat);
+  let lon = toNum(d.lon);
+
+  if (lat && Math.abs(lat) > 90 && lon && Math.abs(lon) <= 90) {
+    [lat, lon] = [lon, lat];
+  }
+
+  if (!lat || !lon) return;
+
+  const pos = { lat: lat, lng: lon };
+
+  if (!liveMarkers[cast.imei]) {
+    const marker = new google.maps.Marker({
+      position: pos,
+      map: map,
+      icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+    });
+
+    const info = new google.maps.InfoWindow();
+    liveMarkers[cast.imei] = { marker, info };
+  } else {
+    liveMarkers[cast.imei].marker.setPosition(pos);
+  }
+
+  // FIXED: Use formatted time here too
+  liveMarkers[cast.imei].info.setContent(`
+    <div style="font-size:13px;min-width:220px">
+      <b>IMEI:</b> ${cast.imei}<br>
+      <b>Speed:</b> ${d.speed || 0} km/h<br>
+      <b>Status:</b> ${d.speed > 0 ? 'Running' : 'Stopped'}<br>
+      <b>Time:</b> ${formatTime(d.time) || new Date().toLocaleString()}<br>
+      <a href="https://maps.google.com/?q=${lat},${lon}" target="_blank">
+        Open in Google Maps
+      </a>
+    </div>
+  `);
+
+  map.panTo(pos);
+});
+
+/* ===============================
+   SIDEBAR INTERACTIVITY
+================================ */
+document.addEventListener('DOMContentLoaded', function() {
+  const vehicleItems = document.querySelectorAll('.list-group-item');
+  
+  vehicleItems.forEach(item => {
+    item.addEventListener('click', function() {
+      const imei = this.getAttribute('data-imei');
+      // Find vehicle in history or focus on its marker
+      const history = JSON.parse('{{ history_json|default:"[]"|escapejs }}');
+      const vehicleHistory = history.filter(h => h.imei === imei);
+      
+      if (vehicleHistory.length > 0) {
+        const last = vehicleHistory[vehicleHistory.length - 1];
+        const pos = { lat: parseFloat(last.lat), lng: parseFloat(last.lon) };
+        map.panTo(pos);
+        map.setZoom(Math.min(map.getZoom(), 14));
+        
+        // Open info window if marker exists
+        if (liveMarkers[imei]) {
+          liveMarkers[imei].info.open(map, liveMarkers[imei].marker);
+        }
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>
+{% endblock %}
