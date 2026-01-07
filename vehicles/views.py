@@ -42,11 +42,17 @@ def all_vehicles(request):
     vehicles = Vehicle.objects.all()
     return render(request, 'vehicles/all_vehicles.html', {'vehicles': vehicles})
 
+def vehicles_report(request):
+    vehicles = Vehicle.objects.all()
+    return render(request, 'vehicles/vehicles_report.html', {'vehicles': vehicles})
+
+def vehicles_status(request):
+    vehicles = Vehicle.objects.all()
+    return render(request, 'vehicles/vehicles_status.html', {'vehicles': vehicles})
 
 @require_GET
 def track_view(request, veh_id: int = None):
     """Vehicle tracking page.
-
     If `veh_id` is provided, load recent `VehicleLocation` history and pass as JSON
     for the template to render a polyline.
     """

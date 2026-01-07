@@ -8,4 +8,6 @@ urlpatterns = [
     path("track/<int:veh_id>", views.track_view, name="vehicles_track"),
     path("location/<int:veh_id>", views.current_view, name="current_view"),
     path("track", views.track_view, name="vehicles_track_all"),
+    path("vehicles_report", views.vehicles_report, name="vehicles_report"),
+    path("vehicles_status", views.vehicles_status, name="vehicles_status"),
 ]

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .status-btn {
+        min-width: 120px;
+        font-weight: 600;
+    }
+    .vehicle-card {
+        border-radius: 8px;
+    }
+    .vehicle-img {
+        width: 90px;
+    }
+    .signal-bars i {
+        font-size: 14px;
+    }
+</style>
+<div class="container my-4">
+
+    <!-- Title -->
+    <h5 class="mb-3 fw-bold">Vehicle Status</h5>
+
+    <!-- Status Buttons -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <button class="btn btn-danger status-btn">Stop: 0</button>
+        <button class="btn btn-success status-btn">Running: 0</button>
+        <button class="btn btn-warning text-white status-btn">Overspeed: 0</button>
+        <button class="btn btn-warning status-btn">Idle: 0</button>
+        <button class="btn btn-primary status-btn">Inactive: 2</button>
+        <button class="btn btn-secondary status-btn">No Data: 0</button>
+    </div>
+
+    <!-- Vehicle Card -->
+    <div class="card vehicle-card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+
+                <!-- Vehicle Image -->
+                <div class="col-md-2 text-center">
+                    <img src="https://cdn-icons-png.flaticon.com/512/1048/1048313.png"
+                         class="vehicle-img mb-2">
+                    <div class="fw-bold">Honda Dio</div>
+                    <div class="text-danger small">● 1234</div>
+                </div>
+
+                <!-- Vehicle Info -->
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>LAST DATA:</strong> 26/01/03 00:11:47 AM</p>
+                    <p class="mb-1"><strong>SPEED:</strong> 0 KM/H</p>
+                    <p class="mb-2"><strong>TODAY KM:</strong> 0.00 KM</p>
+
+                    <i class="bi bi-geo-alt-fill text-danger"></i>
+
+                    <div class="mt-3">
+                        <button class="btn btn-success btn-sm me-1">Live Tracking</button>
+                        <button class="btn btn-primary btn-sm me-1">Playback History</button>
+                        <button class="btn btn-warning btn-sm text-white">Vehicle Report</button>
+                    </div>
+                </div>
+
+                <!-- Battery & Signal -->
+                <div class="col-md-4 text-end">
+                    <div class="mb-3">
+                        <i class="bi bi-battery-full fs-2 text-success"></i>
+                    </div>
+                    <div class="signal-bars text-success">
+                        <i class="bi bi-bar-chart-fill"></i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Second Vehicle -->
+    <div class="card vehicle-card shadow-sm">
+        <div class="card-body">
+            <div class="row align-items-center">
+
+                <div class="col-md-2 text-center">
+                    <img src="https://cdn-icons-png.flaticon.com/512/1048/1048313.png"
+                         class="vehicle-img mb-2">
+                    <div class="fw-bold">Aviator</div>
+                    <div class="text-danger small">● 3652</div>
+                </div>
+
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>LAST DATA:</strong> 25/11/14 16:04:34 PM</p>
+                    <p class="mb-1"><strong>SPEED:</strong> 0 KM/H</p>
+                    <p class="mb-2"><strong>TODAY KM:</strong> 0.00 KM</p>
+
+                    <i class="bi bi-geo-alt-fill text-danger"></i>
+
+                    <div class="mt-3">
+                        <button class="btn btn-success btn-sm me-1">Live Tracking</button>
+                        <button class="btn btn-primary btn-sm me-1">Playback History</button>
+                        <button class="btn btn-warning btn-sm text-white">Vehicle Report</button>
+                    </div>
+                </div>
+
+                <div class="col-md-4 text-end">
+                    <i class="bi bi-battery-half fs-2 text-success"></i>
+                    <div class="signal-bars text-success">
+                        <i class="bi bi-bar-chart-fill"></i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

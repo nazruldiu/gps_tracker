@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container mt-4">
+    <div class="card shadow-sm p-3">
+        <div class="row g-3 align-items-center">
+
+            <!-- Vehicle Select -->
+            <div class="col-md-3">
+                <select class="form-select">
+                    <option selected value="">Select a vehicle</option>
+                    {% for vehicle in vehicles %}
+                        <option value="{{ vehicle.id }}">
+                            {{ vehicle.reg_no }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- From Date -->
+            <div class="col-md-3">
+                <div class="input-group">
+                    <input type="date" class="form-control" value="2025-07-12">
+                    <span class="input-group-text">
+                        <i class="bi bi-calendar"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- To Date -->
+            <div class="col-md-3">
+                <div class="input-group">
+                    <input type="date" class="form-control" value="2026-07-01">
+                    <span class="input-group-text">
+                        <i class="bi bi-calendar"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- GO Button -->
+            <div class="col-md-3 d-grid">
+                <button class="btn btn-success fw-bold">
+                    GO
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
